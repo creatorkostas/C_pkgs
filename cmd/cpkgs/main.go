@@ -4,7 +4,6 @@ import (
 	"cpk/internal/configs"
 	"cpk/internal/configs/global"
 	"cpk/internal/core"
-	"cpk/internal/core/builder"
 	"cpk/internal/downloader"
 	"cpk/internal/utils"
 	"cpk/internal/yamls"
@@ -43,7 +42,7 @@ func main() {
 	fmt.Print("global.DEV_MODE: ")
 	fmt.Println(global.DEV_MODE)
 
-	builder.Load_Instructions("./tests/software_config.yaml")
+	// builder.Load_Instructions("./tests/software_config.yaml")
 
 	if make {
 		var temp = strings.Split(package_url, "/")
