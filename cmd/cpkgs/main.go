@@ -4,8 +4,10 @@ import (
 	"cpk/internal/configs"
 	"cpk/internal/configs/global"
 	"cpk/internal/core"
+	"cpk/internal/core/builder"
 	"cpk/internal/downloader"
 	"cpk/internal/utils"
+	"cpk/internal/yamls"
 	"flag"
 	"fmt"
 	"os"
@@ -36,35 +38,27 @@ func main() {
 	// flag.StringVar(&dir, "run", dir, "run command with cpks")
 	flag.Parse()
 
+	fmt.Print("global.TEST: ")
 	fmt.Println(global.TEST)
+	fmt.Print("global.DEV_MODE: ")
 	fmt.Println(global.DEV_MODE)
+
+	builder.Load_Instructions("./tests/software_config.yaml")
 
 	if make {
 		var temp = strings.Split(package_url, "/")
 		var name = strings.Split(temp[len(temp)-1], ".")
 		if package_url != "" || name[1] != "git" {
-			// https://github.com/KDesp73/httpd.git
 			utils.Run_command("git clone " + package_url + " " + configs.Cpks_Settings.Install_dir + "git/" + name[0])
-			// core.Run(command)
 
+			var instructions yamls.Instructions
+			instructions.AppName = name[0]
 			if command != "" {
 				command = core.Setup(command)
-				utils.Run_command(command)
-				utils.Run_command(
-					"find " +
-						configs.Cpks_Settings.Install_dir +
-						"git/ -type f -regex \".*\\.\\(h\\)\" -exec cp -v -t " +
-						configs.Cpks_Settings.Install_dir +
-						"headers/" + name[0] +
-						" {} \\;")
-
-				utils.Run_command(
-					"find " +
-						configs.Cpks_Settings.Install_dir +
-						"git/ -type f -regex \".*\\.\\(o\\|a\\|so\\)\" -exec cp -v -t " +
-						configs.Cpks_Settings.Install_dir +
-						"libs/" + name[0] +
-						" {} \\;")
+				core.Exec_and_move(command, &instructions)
+			} else {
+				command = core.Setup("cd " + configs.Cpks_Settings.Install_dir + "git/" + name[0] + " ; " + "make")
+				core.Exec_and_move(command, &instructions)
 			}
 
 		} else {

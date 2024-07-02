@@ -19,8 +19,10 @@ func Download(url string) {
 
 		if name[1] == "h" || name[1] == "hpp" {
 			path.WriteString("headers/")
-		} else {
+		} else if name[1] == "so" || name[1] == "o" || name[1] == "a" {
 			path.WriteString("libs/")
+		} else {
+			return
 		}
 
 		out, create_err := os.Create(path.String() + paths[len(paths)-1])
